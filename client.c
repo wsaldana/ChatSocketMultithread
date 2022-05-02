@@ -16,6 +16,9 @@
 #include <netinet/in.h>
 #include <netdb.h>
 
+//JSON Objects
+#include <json-c/json.h>
+
 // Function to send data to
 // server socket.
 void* clienthread(void* args)
@@ -65,12 +68,31 @@ void* clienthread(void* args)
 }
  
 // Driver Code
-int main()
+int main(int argc, char *argv[])
 {
     int choice, num, i;
     unsigned long int fact;
-    printf("\n\n\t\tSistemas Operativos Sección 10 Chat\n\n\n");
+    
+    //Comprobar que hay 4 parametros
+    //if(argv < 4){
+    char *name = (argv[1]);
+    //	    char *IP = (argv[2]);
+    //	    char *port = atoi(argv[3]);
+    //}
 
+    
+    //Request Connection
+    /*
+    struct json_object *init_conection = json_object_new_object();
+    json_object_object_add(init_connection, "request", json_object_new_string("INIT_CONEX"));
+    struct json_object *body = json_object_new_array();
+    json_object_array_add(body, json_object_new_string(name));
+    json_object_array_add(body, json_object_new_string(connection_date));
+    json_object_array_add(init_connection, "body", body);
+    */
+    
+    printf("\n\n\t\tSistemas Operativos Sección 10 Chat\n\n\n");
+	
     printf("1. Chatear con todos los usuarios \n");
     printf("2. Chat privado\n");
     printf("3. Cambiar Status\n");
@@ -78,10 +100,9 @@ int main()
     printf("5. Información de usuario\n");
     printf("6. Ayuda\n");
     printf("7. Desconectarse\n\n\n");
-    printf("Ingrese opción:  ");
+    printf("%s Ingrese opción:  ", name);
     
     // Input
-    int choice;
     scanf("%d", &choice);
 
     pthread_t tid;
