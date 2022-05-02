@@ -12,6 +12,10 @@
 #include <pthread.h>
 #include <semaphore.h>
 
+#include <sys/types.h>
+#include <netinet/in.h>
+#include <netdb.h>
+
 // Function to send data to
 // server socket.
 void* clienthread(void* args)
@@ -19,6 +23,7 @@ void* clienthread(void* args)
  
     int client_request = *((int*)args);
     int network_socket;
+    struct hostent *server;
  
     // Create a stream socket
     network_socket = socket(AF_INET,
@@ -27,8 +32,13 @@ void* clienthread(void* args)
     // Initialise port number and address
     struct sockaddr_in server_address;
     server_address.sin_family = AF_INET;
-    server_address.sin_addr.s_addr = INADDR_ANY;
-    server_address.sin_port = htons(8989);
+    // server_address.sin_addr.s_addr = inet_addr("155.94.218.78");
+    server = gethostbyname("8.tcp.ngrok.io");
+    if(server == NULL){
+        fprintf(stderr, "Error, no such host");
+    }
+    server_address.sin_addr = *((struct in_addr *)server->h_addr);
+    server_address.sin_port = htons(11017);
  
     // Initiate a socket connection
     int connection_status = connect(network_socket,
