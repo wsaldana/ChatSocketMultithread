@@ -67,12 +67,23 @@ void* clienthread(void* args)
 // Driver Code
 int main()
 {
-    printf("1. Read\n");
-    printf("2. Write\n");
- 
+    int choice, num, i;
+    unsigned long int fact;
+    printf("\n\n\t\tSistemas Operativos Sección 10 Chat\n\n\n");
+
+    printf("1. Chatear con todos los usuarios \n");
+    printf("2. Chat privado\n");
+    printf("3. Cambiar Status\n");
+    printf("4. Usuarios conectados\n");
+    printf("5. Información de usuario\n");
+    printf("6. Ayuda\n");
+    printf("7. Desconectarse\n\n\n");
+    printf("Ingrese opción:  ");
+    
     // Input
     int choice;
     scanf("%d", &choice);
+
     pthread_t tid;
  
     // Create connection
@@ -80,7 +91,7 @@ int main()
     switch (choice) {
     case 1: {
         int client_request = 1;
- 
+        printf("\n\n\t\t\tCHAT GENERAL\n\n\n");
         // Create thread
         pthread_create(&tid, NULL,
                        clienthread,
@@ -90,13 +101,59 @@ int main()
     }
     case 2: {
         int client_request = 2;
- 
+        printf("\n\n\t\t\tCHAT PRIVADO\n\n\n");
+        
         // Create thread
         pthread_create(&tid, NULL,
                        clienthread,
                        &client_request);
         sleep(20);
         break;
+    }
+    case 3:{
+        int client_request = 3;
+        printf("\n\n\t\t\tSTATUS\n\n\n");
+        // Create thread
+        pthread_create(&tid, NULL,
+                       clienthread,
+                       &client_request);
+        sleep(20);
+        break;
+    }
+    case 4:{
+        int client_request = 4;
+        printf("\n\n\t\t\tLISTA DE USUARIOS CONECTADOS\n\n\n");
+        // Create thread
+        pthread_create(&tid, NULL,
+                       clienthread,
+                       &client_request);
+        sleep(20);
+        break;
+    }
+    case 5:{
+        int client_request = 5;
+        printf("\n\n\t\t\tINFORMACIÓN DE USUARIOS\n\n\n");
+        // Create thread
+        pthread_create(&tid, NULL,
+                       clienthread,
+                       &client_request);
+        sleep(20);
+        break;
+    }
+    case 6:{
+        int client_request = 6;
+        printf("\n\n\t\t\tMANUAL DE USO\n\n\n");
+        // Create thread
+        pthread_create(&tid, NULL,
+                       clienthread,
+                       &client_request);
+        sleep(20);
+        break;
+    }
+    case 7:{
+        int client_request = 7;
+        printf("\n\n\t\t\tConectese pronto...\n\n\n");
+        exit(0);    // terminates the complete program execution
     }
     default:
         printf("Invalid Input\n");
