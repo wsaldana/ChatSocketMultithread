@@ -19,11 +19,13 @@
 //JSON Objects
 #include <json-c/json.h>
 
+//Actual Date library
+#include <time.h>
+
 // Function to send data to
 // server socket.
 void* clienthread(void* args)
 {
- 
     int client_request = *((int*)args);
     int network_socket;
     struct hostent *server;
@@ -79,17 +81,25 @@ int main(int argc, char *argv[])
     //	    char *IP = (argv[2]);
     //	    char *port = atoi(argv[3]);
     //}
-
+    
+    //Obtener DATE con libraeria
+    time_t t = time(NULL);
+    time(&t);
+    
+    char *connection_date = ctime(&t);
+    char *requestI;
     
     //Request Connection
-    /*
-    struct json_object *init_conection = json_object_new_object();
+    struct json_object *init_connection = json_object_new_object();
     json_object_object_add(init_connection, "request", json_object_new_string("INIT_CONEX"));
+    
     struct json_object *body = json_object_new_array();
     json_object_array_add(body, json_object_new_string(name));
     json_object_array_add(body, json_object_new_string(connection_date));
-    json_object_array_add(init_connection, "body", body);
-    */
+    json_object_object_add(init_connection, "body", body);
+    
+    requestI = json_object_to_json_string_ext(init_connection, JSON_C_TO_STRING_SPACED | JSON_C_TO_STRING_PRETTY);
+    printf("jobj from str:\n--\n%s\n--\n", requestI);
     
     printf("\n\n\t\tSistemas Operativos Sección 10 Chat\n\n\n");
 	
@@ -106,6 +116,9 @@ int main(int argc, char *argv[])
     scanf("%d", &choice);
 
     pthread_t tid;
+    pthread_create(&tid, NULL,
+    		   clienthread,
+    		   &requestI);
  
     // Create connection
     // depending on the input
