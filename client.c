@@ -82,12 +82,15 @@ int main(int argc, char *argv[])
     //	    char *port = atoi(argv[3]);
     //}
     
-    //Obtener DATE con libraeria
+    //Obtener DATE
     time_t t = time(NULL);
     time(&t);
     
     char *connection_date = ctime(&t);
+    
     char *requestI;
+    char privName;
+    char status;
     
     //Request Connection
     struct json_object *init_connection = json_object_new_object();
@@ -99,7 +102,6 @@ int main(int argc, char *argv[])
     json_object_object_add(init_connection, "body", body);
     
     requestI = json_object_to_json_string_ext(init_connection, JSON_C_TO_STRING_SPACED | JSON_C_TO_STRING_PRETTY);
-    printf("jobj from str:\n--\n%s\n--\n", requestI);
     
     printf("\n\n\t\tSistemas Operativos Sección 10 Chat\n\n\n");
 	
@@ -124,69 +126,135 @@ int main(int argc, char *argv[])
     // depending on the input
     switch (choice) {
     case 1: {
-        int client_request = 1;
+    	//Request Connection
+    	struct json_object *init_connection = json_object_new_object();
+    	json_object_object_add(init_connection, "request", json_object_new_string("GET_CHAT"));
+    	json_object_object_add(init_connection, "body", json_object_new_string("all"));
+    
+    	requestI = json_object_to_json_string_ext(init_connection, JSON_C_TO_STRING_SPACED | JSON_C_TO_STRING_PRETTY);
+    	//printf("jobj from str:\n--\n%s\n--\n", requestI);
+    	
         printf("\n\n\t\t\tCHAT GENERAL\n\n\n");
-        // Create thread
-        pthread_create(&tid, NULL,
-                       clienthread,
-                       &client_request);
-        sleep(20);
-        break;
-    }
-    case 2: {
-        int client_request = 2;
-        printf("\n\n\t\t\tCHAT PRIVADO\n\n\n");
         
         // Create thread
         pthread_create(&tid, NULL,
                        clienthread,
-                       &client_request);
+                       &requestI);
         sleep(20);
         break;
+    }
+    case 2: {
+    	printf("Ingrese usuario con el que quiere comunicarse:\t");
+    	scanf("%s", &privName);
+    	
+    	if(strlen(&privName) > 0){
+	    	//Request Connection
+	    	struct json_object *init_connection = json_object_new_object();
+	    	json_object_object_add(init_connection, "request", json_object_new_string("GET_CHAT"));
+	    	json_object_object_add(init_connection, "body", json_object_new_string(&privName));
+	    	
+	    	requestI = json_object_to_json_string_ext(init_connection, JSON_C_TO_STRING_SPACED | JSON_C_TO_STRING_PRETTY);
+	    	//printf("jobj from str:\n--\n%s\n--\n", requestI);
+
+		printf("\n\n\t\t\tCHAT PRIVADO\n\n\n");
+		// Create thread
+		pthread_create(&tid, NULL,
+		       clienthread,
+		       &requestI);
+		sleep(20);
+		break;
+		}
     }
     case 3:{
-        int client_request = 3;
-        printf("\n\n\t\t\tSTATUS\n\n\n");
-        // Create thread
-        pthread_create(&tid, NULL,
+    	printf("Ingrese el nuevo status (0, Activo), (1, Inactivo), (2, Ocupado):\t");
+    	scanf("%s", &status);
+        
+        if(strlen(&status) > 0){
+            	//Request Connection
+	    	struct json_object *init_connection = json_object_new_object();
+	    	json_object_object_add(init_connection, "request", json_object_new_string("PUT_STATUS"));
+		json_object_object_add(init_connection, "body", json_object_new_string(&status));
+		    	
+	    	requestI = json_object_to_json_string_ext(init_connection, JSON_C_TO_STRING_SPACED | JSON_C_TO_STRING_PRETTY);
+		//printf("jobj from str:\n--\n%s\n--\n", requestI);
+        	printf("\n\n\t\t\tCAMBIO DE STATUS EN PROCESO...\n\n\n");
+        
+        	// Create thread
+        	pthread_create(&tid, NULL,
                        clienthread,
-                       &client_request);
-        sleep(20);
-        break;
+                       &requestI);
+        	sleep(20);
+        	break;
+        }
     }
     case 4:{
-        int client_request = 4;
+    	//Request Connection
+    	struct json_object *init_connection = json_object_new_object();
+    	json_object_object_add(init_connection, "request", json_object_new_string("GET_USER"));
+    	json_object_object_add(init_connection, "body", json_object_new_string("all"));
+    
+    	requestI = json_object_to_json_string_ext(init_connection, JSON_C_TO_STRING_SPACED | JSON_C_TO_STRING_PRETTY);
+    	//printf("jobj from str:\n--\n%s\n--\n", requestI);
+    	
         printf("\n\n\t\t\tLISTA DE USUARIOS CONECTADOS\n\n\n");
         // Create thread
         pthread_create(&tid, NULL,
                        clienthread,
-                       &client_request);
+                       &requestI);
         sleep(20);
         break;
     }
     case 5:{
-        int client_request = 5;
-        printf("\n\n\t\t\tINFORMACIÓN DE USUARIOS\n\n\n");
-        // Create thread
-        pthread_create(&tid, NULL,
-                       clienthread,
-                       &client_request);
-        sleep(20);
-        break;
+        printf("Ingrese usuario del que quiere información:\t");
+    	scanf("%s", &privName);
+    	
+    	if(strlen(&privName) > 0){
+	    	//Request Connection
+	    	struct json_object *init_connection = json_object_new_object();
+	    	json_object_object_add(init_connection, "request", json_object_new_string("GET_USER"));
+	    	json_object_object_add(init_connection, "body", json_object_new_string(&privName));
+	    	
+	    	requestI = json_object_to_json_string_ext(init_connection, JSON_C_TO_STRING_SPACED | JSON_C_TO_STRING_PRETTY);
+	    	//printf("jobj from str:\n--\n%s\n--\n", requestI);
+
+		printf("\n\n\t\t\tINFORMACIÓN DE USUARIO\n\n\n");
+		// Create thread
+		pthread_create(&tid, NULL,
+		       clienthread,
+		       &requestI);
+		sleep(20);
+		break;
+		}
     }
     case 6:{
         int client_request = 6;
         printf("\n\n\t\t\tMANUAL DE USO\n\n\n");
-        // Create thread
-        pthread_create(&tid, NULL,
-                       clienthread,
-                       &client_request);
+        printf("Holaaa, bienvenido al CHATROOM de Sistemas Operativos\n");
+        printf("Selecciona una opción del Ménu de Opciones desplegado anteriormente\n\n");
+	printf("Chatear con todos los usuarios: Podras chatear con todos los usuarios conectados al chatroom.\n\n");
+	printf("Chat privado: Podras chatear con un usuario en especifico\n\n");
+	printf("Cambiar status: Cambias tu status entre activo(0), inactivo(1), ocupado(2).\n\n");
+	printf("Usuarios conectados: Mostrata la lista de todos los usuarios conectados al servidor.\n\n");
+	printf("Información de usuario: Mostrara la información de un usuario en especifico.\n\n");
+	printf("Desconectarse: Te desconectaras del chatroom.\n\n");
+	        
         sleep(20);
         break;
     }
     case 7:{
-        int client_request = 7;
-        printf("\n\n\t\t\tConectese pronto...\n\n\n");
+    	//Request Connection
+    	struct json_object *init_connection = json_object_new_object();
+    	json_object_object_add(init_connection, "request", json_object_new_string("END_CONEX")); 
+    	requestI = json_object_to_json_string_ext(init_connection, JSON_C_TO_STRING_SPACED | JSON_C_TO_STRING_PRETTY);
+    	//printf("jobj from str:\n--\n%s\n--\n", requestI);
+    	
+	// Create thread
+	pthread_create(&tid, NULL,
+	       clienthread,
+	       &requestI);
+	sleep(20);
+	break;
+	printf("\n\n\t\t\tConectese pronto...\n\n\n");
         exit(0);    // terminates the complete program execution
     }
     default:
