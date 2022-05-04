@@ -60,7 +60,8 @@ void GetAllChats(){
 
         char msg[150];
         printf("Mensaje (ingrese '*' para salir): ");
-        scanf("%s", &msg);
+        fgets(msg, 150, stdin);
+        printf("%s", msg);
 
         if(strcmp("*", msg) == 0)
             break;
