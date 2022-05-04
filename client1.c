@@ -34,15 +34,15 @@ void error(const char *msg){
 
 
 char sendServer(char *jsonMsg){
-	bzero(buffer, 255);
+	bzero(buffer, 1000);
     (void) strncpy(buffer, jsonMsg, strlen(jsonMsg));
     n = write(sockfd, buffer, strlen(buffer));
     if(n < 0)
         error("Error on writing");
         
     // Receive from server
-    bzero(buffer, 255);
-    n = read(sockfd, buffer, 255);
+    bzero(buffer, 1000);
+    n = read(sockfd, buffer, 1000);
     if(n < 0)
         error("Error on reading");
         	
