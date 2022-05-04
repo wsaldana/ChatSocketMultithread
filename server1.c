@@ -10,6 +10,9 @@
 // Requests buffer
 char buffer[256];
 
+// Messages
+char msgs[100][3];
+
 // Socket
 int sockfd, newsockfd, n;
 
