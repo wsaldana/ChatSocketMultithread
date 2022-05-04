@@ -17,7 +17,11 @@ char *msgs[100][3] = {
 };
 
 // Users
-char *users[100][3];
+char *users[100][3] = {
+    {"user47", "198.0.0.10", "0"},
+    {"mcabs", "179.0.0.10", "1"},
+    {"chimp", "128.0.0.10", "2"},
+};
 
 // Socket
 int sockfd, newsockfd, n;
@@ -73,7 +77,7 @@ void* serverthread(void* args){
                 
                 resI = json_object_to_json_string_ext(res_get_chat, JSON_C_TO_STRING_SPACED | JSON_C_TO_STRING_PRETTY);
                 
-                if (body == "all"){
+                if (strcmp(json_object_get_string(body), "all") == 0){
                     printf("all");
                 }else{
                     printf("username");
@@ -87,11 +91,39 @@ void* serverthread(void* args){
                 }
                 
             }else if(strcmp(req, "GET_USER") == 0){
+                char b[256];
+                strcpy(b, json_object_get_string(body));
+
+                struct json_object *res_get_user = json_object_new_object();
+                json_object_object_add(res_get_user, "response", json_object_new_string("GET_USER"));
+                json_object_object_add(res_get_user, "code", json_object_new_int(200));
+                struct json_object *body = json_object_new_array();
+                for(int i=0; i<100; i++){
+                    if(users[i][0] != NULL){
+                        if (strcmp(b, "all") == 0){
+                            struct json_object *usr = json_object_new_array();
+                            json_object_array_add(usr, json_object_new_string(users[i][0]));
+                            json_object_array_add(usr, json_object_new_string(users[i][2]));
+
+                            json_object_array_add(body, usr);
+                        }else{
+                            if(strcmp(b, users[i][0]) == 0){
+                                json_object_array_add(body, json_object_new_string(users[i][1]));
+                                json_object_array_add(body, json_object_new_string(users[i][2]));
+                            }
+                        }
+                    }
+                }
+                json_object_object_add(res_get_user, "body", body);
+                
+                resI = json_object_to_json_string_ext(res_get_user, JSON_C_TO_STRING_SPACED | JSON_C_TO_STRING_PRETTY);
+
+                /*
                 if (body == "all"){
                     printf("all");
                 }else{
                     printf("username");
-                }
+                }*/
                 
             }else if(strcmp(req, "PUT_STATUS") == 0){
                 if (body == "0"){

@@ -40,7 +40,7 @@ char sendServer(char *jsonMsg){
     if(n < 0)
         error("Error on writing");
         
-    // Receive from server
+    // Receive response from server
     bzero(buffer, 1000);
     n = read(sockfd, buffer, 1000);
     if(n < 0)
