@@ -261,7 +261,14 @@ int main(int argc, char *argv[]){
     requestI = json_object_to_json_string_ext(init_connection, JSON_C_TO_STRING_SPACED | JSON_C_TO_STRING_PRETTY);
     sendServer(requestI);
     
+    /*Check REQUEST parsed
+    struct json_object *parsed_json;
+    struct json_object *requestMade;
+    parsed_json = json_tokener_parse(requestI);
+    json_object_object_get_ex(parsed_json, "request", &requestMade);
     
+    printf("Request made: %s", json_object_get_string(requestMade));
+    */
     while(1){
 	    printf("\n\n\t\tSistemas Operativos Sección 10 Chat\n\n\n");
 	    printf("1. Chatear con todos los usuarios \n");

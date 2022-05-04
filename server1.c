@@ -7,6 +7,9 @@
 #include <netinet/in.h>
 #include <pthread.h>
 
+//JSON Objects
+#include <json-c/json.h>
+
 // Requests buffer
 //char buffer[256];
 
@@ -27,6 +30,9 @@ void error(const char *msg){
 void* serverthread(void* args){
     char buffer[256];
     int mysockfd = *((int*)args);
+    struct json_object *parsed_json;
+    struct json_object *requestMade;
+    struct json_object *body;
     
     while(1){
         // Read from client
@@ -35,7 +41,52 @@ void* serverthread(void* args){
         if(n < 0)
             error("Error on reading");
         printf("Client: %s\n", buffer);
-
+	
+	if(buffer != ""){
+		parsed_json = json_tokener_parse(buffer);
+		json_object_object_get_ex(parsed_json, "request", &requestMade);
+		json_object_object_get_ex(parsed_json, "body", &body);
+		
+		//printf("REQUEST: %s", json_object_get_string(requestMade));
+		char req[256];
+		strcpy(req, json_object_get_string(requestMade));
+		
+		if (strcmp(req, "INIT_CONEX") == 0){
+			printf("%s", json_object_get_string(requestMade));
+			
+		}else if(strcmp(req, "GET_CHAT") == 0){
+			if (body == "all"){
+				printf("all");
+			}else{
+				printf("username");
+			}
+			
+		}else if(strcmp(req, "POST_CHAT") == 0){
+			if (body == "all"){
+				printf("all");
+			}else{
+				printf("username");
+			}
+			
+		}else if(strcmp(req, "GET_USER") == 0){
+			if (body == "all"){
+				printf("all");
+			}else{
+				printf("username");
+			}
+			
+		}else if(strcmp(req, "PUT_STATUS") == 0){
+			if (body == "0"){
+				printf("0");
+			}else if(body == "1"){
+				printf("1");
+			}else if(body == "2"){
+				printf("2");
+			}
+			
+		}
+	}
+	
         // send to client
         bzero(buffer, 255);
         char msg[5] = "Hola\n";
