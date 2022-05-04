@@ -23,6 +23,9 @@ char *requestI;
 
 // Socket
 int sockfd, n;
+struct hostent *server;
+struct sockaddr_in server_addr;
+int portno;
 
 void error(const char *msg){
     perror(msg);
@@ -173,25 +176,41 @@ void Disconnect(){
     	sendServer(requestI);
 }
 
-int main(int argc, char *argv[]){
-    int portno, choice;
-    struct sockaddr_in server_addr;
-    struct hostent *server;
-
-    if (argc < 4){
-        fprintf(stderr, "Usage %s hostname port username\n", argv[0]);
-        exit(1);
+int createNewSocket(char *ip, int nport){
+    int network_socket;
+ 
+    // Create a stream socket
+    network_socket = socket(AF_INET, SOCK_STREAM, 0);
+ 
+    // Initialise port number and address
+    struct sockaddr_in server_address;
+    server_address.sin_family = AF_INET;
+    server_address.sin_addr.s_addr = inet_addr(ip);
+    server_address.sin_port = htons(nport);
+ 
+    // Initiate a socket connection
+    int connection_status = connect(
+        network_socket,
+        (struct sockaddr*)&server_address,
+        sizeof(server_address)
+    );
+ 
+    // Check for connection error
+    if (connection_status < 0) {
+        printf("Error connecting to socket at %s\n", ip);
+        return -1;
     }
 
-    name = (argv[3]);
+    return network_socket;
+}
 
-    portno = atoi(argv[2]);
+int createNewSocketHostname(char *hostname, int nport){
     sockfd = socket(AF_INET, SOCK_STREAM, 0);
     if(sockfd < 0){
         error("Error opening socket.");
     }
 
-    server = gethostbyname(argv[1]);
+    server = gethostbyname(hostname);
     if(server == NULL){
         fprintf(stderr, "Error, no such host");
     }
@@ -199,16 +218,36 @@ int main(int argc, char *argv[]){
     bzero((char *)&server_addr, sizeof(server_addr));
     server_addr.sin_family = AF_INET;
     bcopy((char *) server->h_addr, (char *) &server_addr.sin_addr.s_addr, server->h_length);
-    server_addr.sin_port = htons(portno);
+    server_addr.sin_port = htons(nport);
     if(connect(sockfd, (struct sockaddr *) &server_addr, sizeof(server_addr)) < 0)
         error("Connection Failed");
+    
+    return sockfd;
+}
+
+int main(int argc, char *argv[]){
+    int choice;
+
+    if (argc < 5){
+        fprintf(stderr, "Usage %s IP hostname port username\n", argv[0]);
+        exit(1);
+    }
+
+    portno = atoi(argv[3]);
+    name = (argv[4]);
+
+    if(strcmp(argv[1], "0") != 0)
+        sockfd = createNewSocket(argv[1], portno);
+    else if(strcmp(argv[2], "0") != 0)
+        sockfd = createNewSocketHostname(argv[2], portno);
+    else
+        error("Socket not found\n");
 
     //Obtener DATE
     time_t t = time(NULL);
     time(&t);
     
     char *connection_date = ctime(&t);
-    
     
     //Request Connection
     struct json_object *init_connection = json_object_new_object();
