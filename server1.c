@@ -8,10 +8,10 @@
 #include <pthread.h>
 
 // Requests buffer
-char buffer[256];
+//char buffer[256];
 
 // Messages
-char msgs[100][3];
+char *msgs[100][3];
 
 // Socket
 int sockfd, newsockfd, n;
@@ -22,21 +22,23 @@ void error(const char *msg){
 }
 
 void* serverthread(void* args){
+    char buffer[256];
+    int mysockfd = *((int*)args);
+    
     while(1){
         // Read from client
         bzero(buffer, 256);
-        n = read(newsockfd, buffer, 255);
+        n = read(mysockfd, buffer, 255);
         if(n < 0)
             error("Error on reading");
         printf("Client: %s\n", buffer);
 
         // send to client
         bzero(buffer, 255);
-        // fgets(buffer, 255, stdin);
         char msg[5] = "Hola\n";
         (void) strncpy(buffer, msg, sizeof(msg));
 
-        n = write(newsockfd, buffer, strlen(buffer));
+        n = write(mysockfd, buffer, strlen(buffer));
         if(n < 0)
             error("Error on writing");
     }
@@ -54,7 +56,7 @@ int main(int arc, char *argv[]){
         exit(1);
     }
     int portno, n;
-    char buffer[255];
+    //char buffer[255];
 
     struct sockaddr_in server_addr, cli_addr;
     socklen_t clilen;
@@ -78,12 +80,12 @@ int main(int arc, char *argv[]){
     listen(sockfd, 5);
     clilen = sizeof(cli_addr);
 
-    newsockfd = accept(sockfd, (struct sockaddr *) &cli_addr, &clilen);
-
-    if(newsockfd < 0)
-        error("Error on Accept");
-
-    pthread_create(&tid, NULL, serverthread, NULL);
+    while(1){
+        newsockfd = accept(sockfd, (struct sockaddr *) &cli_addr, &clilen);
+        if(newsockfd < 0)
+            error("Error on Accept");
+        pthread_create(&tid, NULL, serverthread, &newsockfd);
+    }
 
     pthread_join(tid, NULL);
     close(newsockfd);
