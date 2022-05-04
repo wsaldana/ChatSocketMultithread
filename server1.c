@@ -13,6 +13,9 @@
 // Messages
 char *msgs[100][3];
 
+// Users
+char *users[100][3];
+
 // Socket
 int sockfd, newsockfd, n;
 
