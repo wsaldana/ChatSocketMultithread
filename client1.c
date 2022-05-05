@@ -33,7 +33,7 @@ void error(const char *msg){
 }
 
 
-char sendServer(char *jsonMsg){
+char *sendServer(char *jsonMsg){
 	bzero(buffer, 1000);
     (void) strncpy(buffer, jsonMsg, strlen(jsonMsg));
     n = write(sockfd, buffer, strlen(buffer));
@@ -45,8 +45,11 @@ char sendServer(char *jsonMsg){
     n = read(sockfd, buffer, 1000);
     if(n < 0)
         error("Error on reading");
-        	
-   	printf("Server: %s", buffer);
+        
+        static char res[1000];
+        strcpy(res, buffer);
+
+   	return res;
 }
 
 void GetAllChats(){
@@ -56,12 +59,46 @@ void GetAllChats(){
         json_object_object_add(general_chat, "request", json_object_new_string("GET_CHAT"));
         json_object_object_add(general_chat, "body", json_object_new_string("all"));
         requestI = json_object_to_json_string_ext(general_chat, JSON_C_TO_STRING_SPACED | JSON_C_TO_STRING_PRETTY);
-        sendServer(requestI);
+        
+        char *responseMade;
+        //AQUI TIENE QUE IR responseMade = sendServer(requestI);
+        responseMade = sendServer(requestI);
 
         char msg[150];
         printf("Mensaje (ingrese '*' para salir): ");
-        fgets(msg, 150, stdin);
-
+        fgets(msg, 150, stdin);	
+	
+	
+	//Response parse
+        struct json_object *parsed_json;
+        struct json_object *code;
+        struct json_object *msg_info;
+        struct json_object *msgs;
+        struct json_object *from;
+        struct json_object *delivered;
+	int msgQ = 0;
+        
+        parsed_json = json_tokener_parse(resI);
+        json_object_object_get_ex(parsed_json, "response", &resI);
+        json_object_object_get_ex(parsed_json, "code", &code);
+        
+        printf("%s", json_object_get_string(resI));
+        printf("%s", json_object_get_string(code));
+        
+        struct json_object *body1;
+	json_object_object_get_ex(parsed_json, "body", &body1);
+	msgQ = json_object_array_length(body);
+	
+	//printf("%s", json_object_get_string(body1));
+	
+	for(int i=0;i<msgQ;i++) {
+                msg_info = json_object_array_get_idx(body1, i);
+                msgs = json_object_array_get_idx(msg_info, 0);
+                from = json_object_array_get_idx(msg_info, 1);
+                delivered = json_object_array_get_idx(msg_info, 2);
+                
+                printf("%s de %s  a las %s horas\n",json_object_get_string(msgs), json_object_get_string(from), json_object_get_string(delivered));
+	
         if(strcmp("*\n", msg) == 0)
             break;
 
@@ -123,6 +160,8 @@ void ChangeStatus(){
 		//printf("jobj from str:\n--\n%s\n--\n", requestI);
 		printf("\n\n\t\t\tCAMBIO DE STATUS EN PROCESO...\n\n\n");
 	}
+	
+	
 }
 
 void UsersList(){
@@ -259,7 +298,7 @@ int main(int argc, char *argv[]){
     json_object_object_add(init_connection, "body", body);
     
     requestI = json_object_to_json_string_ext(init_connection, JSON_C_TO_STRING_SPACED | JSON_C_TO_STRING_PRETTY);
-    sendServer(requestI);
+    char res = sendServer(requestI);
     
     /*Check REQUEST parsed
     struct json_object *parsed_json;
@@ -269,6 +308,7 @@ int main(int argc, char *argv[]){
     
     printf("Request made: %s", json_object_get_string(requestMade));
     */
+    
     while(1){
 	    printf("\n\n\t\tSistemas Operativos Sección 10 Chat\n\n\n");
 	    printf("1. Chatear con todos los usuarios \n");
