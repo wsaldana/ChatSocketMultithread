@@ -119,7 +119,7 @@ void* serverthread(void* args){
 
                             json_object_array_add(body, usr);
                         }else{
-                            if(strcmp(b, users[i][0]) == 0){
+                            if(strcmp(b, users[i][1]) == 0){
                                 json_object_array_add(body, json_object_new_string(users[i][2]));
                                 json_object_array_add(body, json_object_new_string(users[i][3]));
                             }
