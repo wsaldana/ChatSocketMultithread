@@ -9,19 +9,10 @@
 #include <json-c/json.h>
 
 // Messages
-char *msgs[100][3] = {
-    {"jojo", "user47", "22:18"},
-    {"ofmsoe", "user67", "24:05"},
-    {"nelson", "usjf7", "12:20"},
-    {"mandela", "mcabs", "7:35"}
-};
+char *msgs[100][3];
 
 // Users
-char *users[100][4] = {
-    {"1", "user47", "198.0.0.10", "0"},
-    {"2", "mcabs", "179.0.0.10", "1"},
-    {"3", "chimp", "128.0.0.10", "2"},
-};
+char *users[100][4];
 
 // Socket
 int sockfd, newsockfd, n;
@@ -38,7 +29,10 @@ void* serverthread(void* args){
     struct json_object *requestMade;
     struct json_object *body;
     char *resI;
-    
+
+    char fd[5];
+    sprintf(fd, "%d", mysockfd); 
+    printf("%d", mysockfd); 
     while(1){
         // Read from client
         bzero(buffer, 1000);
@@ -51,13 +45,10 @@ void* serverthread(void* args){
             parsed_json = json_tokener_parse(buffer);
             json_object_object_get_ex(parsed_json, "request", &requestMade);
             json_object_object_get_ex(parsed_json, "body", &body);
-            
             char req[256];
             strcpy(req, json_object_get_string(requestMade));
             
             if (strcmp(req, "INIT_CONEX") == 0){
-                char fd[5];
-                sprintf(fd, "%d", mysockfd); 
                 for(int i=0; i<100; i++){
                     if(users[i][0] == NULL){
                         users[i][0] = fd;
@@ -67,8 +58,11 @@ void* serverthread(void* args){
                         break;
                     }
                 }
-                printf("%s", json_object_get_string(requestMade));
-            
+                struct json_object *res_init_conex = json_object_new_object();
+                json_object_object_add(res_init_conex, "response", json_object_new_string("INIT_CONEX"));
+                json_object_object_add(res_init_conex, "code", json_object_new_int(200));
+                resI = json_object_to_json_string_ext(res_init_conex, JSON_C_TO_STRING_SPACED | JSON_C_TO_STRING_PRETTY);
+
             }else if(strcmp(req, "GET_CHAT") == 0){
                 struct json_object *res_get_chat = json_object_new_object();
                 json_object_object_add(res_get_chat, "response", json_object_new_string("GET_CHAT"));
@@ -103,11 +97,10 @@ void* serverthread(void* args){
                         break;
                     }
                 }
-                if (body == "all"){
-                    printf("all");
-                }else{
-                    printf("username");
-                }
+                struct json_object *res_init_conex = json_object_new_object();
+                json_object_object_add(res_init_conex, "response", json_object_new_string("INIT_CONEX"));
+                json_object_object_add(res_init_conex, "code", json_object_new_int(200));
+                resI = json_object_to_json_string_ext(res_init_conex, JSON_C_TO_STRING_SPACED | JSON_C_TO_STRING_PRETTY);
                 
             }else if(strcmp(req, "GET_USER") == 0){
                 char b[256];
@@ -136,27 +129,32 @@ void* serverthread(void* args){
                 json_object_object_add(res_get_user, "body", body);
                 
                 resI = json_object_to_json_string_ext(res_get_user, JSON_C_TO_STRING_SPACED | JSON_C_TO_STRING_PRETTY);
-
-                /*
-                if (body == "all"){
-                    printf("all");
-                }else{
-                    printf("username");
-                }*/
                 
             }else if(strcmp(req, "PUT_STATUS") == 0){
-
-                if (body == "0"){
-                    printf("0");
-                }else if(body == "1"){
-                    printf("1");
-                }else if(body == "2"){
-                    printf("2");
+                for(int i=0; i<100;  i++){
+                    if(strcmp(users[i][0], fd) == 0){
+                        users[i][3] = json_object_get_string(body);
+                        break;
+                    }
                 }
-                
+                struct json_object *res_init_conex = json_object_new_object();
+                json_object_object_add(res_init_conex, "response", json_object_new_string("PUT_STATUS"));
+                json_object_object_add(res_init_conex, "code", json_object_new_int(200));
+                resI = json_object_to_json_string_ext(res_init_conex, JSON_C_TO_STRING_SPACED | JSON_C_TO_STRING_PRETTY);            
+            }
+            else if(strcmp(req, "END_CONEX") == 0){
+                for(int i=0; i<100;  i++){
+                    if(strcmp(users[i][0], fd) == 0){
+                        users[i][3] = "1";
+                        n = write(mysockfd, "Sesion finalizada", strlen("Sesion finalizada"));
+                        break;
+                    }
+                }
+                break;             
             }
         }
 
+        bzero(buffer, 1000);
         n = write(mysockfd, resI, strlen(resI));
         if(n < 0)
             error("Error on writing");

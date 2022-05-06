@@ -166,10 +166,12 @@ void Manual(){
 
 void Disconnect(){
 	//Request ENDING CONNECTION
-    	struct json_object *end_connection = json_object_new_object();
-    	json_object_object_add(end_connection, "request", json_object_new_string("END_CONEX")); 
-    	requestI = json_object_to_json_string_ext(end_connection, JSON_C_TO_STRING_SPACED | JSON_C_TO_STRING_PRETTY);
-    	sendServer(requestI);
+    struct json_object *end_connection = json_object_new_object();
+    json_object_object_add(end_connection, "request", json_object_new_string("END_CONEX")); 
+    requestI = json_object_to_json_string_ext(end_connection, JSON_C_TO_STRING_SPACED | JSON_C_TO_STRING_PRETTY);
+    sendServer(requestI);
+    printf("\nTe has desconectado\n");
+    exit(0);
 }
 
 int createNewSocket(char *ip, int nport){
