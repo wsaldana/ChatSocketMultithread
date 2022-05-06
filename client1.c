@@ -50,41 +50,37 @@ char sendServer(char *jsonMsg){
 }
 
 void GetAllChats(){
-    while(1){
-        //Request GET_CHAT
-        struct json_object *general_chat = json_object_new_object();
-        json_object_object_add(general_chat, "request", json_object_new_string("GET_CHAT"));
-        json_object_object_add(general_chat, "body", json_object_new_string("all"));
-        requestI = json_object_to_json_string_ext(general_chat, JSON_C_TO_STRING_SPACED | JSON_C_TO_STRING_PRETTY);
+    char msg[150];
+    printf("Mensaje (ingrese '*' para salir): ");
+    //fgets(msg, 150, stdin);
+    scanf("%s", &msg);
+
+    if (strlen(msg) > 0){
+        //Obtener DATE
+        time_t t = time(NULL);
+        time(&t);
+        char *deliver_date = ctime(&t);
+        //Request POST_CHAT
+        struct json_object *post_chat = json_object_new_object();
+        json_object_object_add(post_chat, "request", json_object_new_string("POST_CHAT"));
+        
+        struct json_object *body = json_object_new_array();
+        json_object_array_add(body, json_object_new_string(msg));
+        json_object_array_add(body, json_object_new_string(name));
+        json_object_array_add(body, json_object_new_string(deliver_date));
+        json_object_array_add(body, json_object_new_string("all"));
+        
+        json_object_object_add(post_chat, "body", body);
+        requestI = json_object_to_json_string_ext(post_chat, JSON_C_TO_STRING_SPACED | JSON_C_TO_STRING_PRETTY);
         sendServer(requestI);
-
-        char msg[150];
-        printf("Mensaje (ingrese '*' para salir): ");
-        fgets(msg, 150, stdin);
-
-        if(strcmp("*\n", msg) == 0)
-            break;
-
-        if (strlen(msg) > 0){
-            //Obtener DATE
-            time_t t = time(NULL);
-            time(&t);
-            char *deliver_date = ctime(&t);
-            //Request POST_CHAT
-            struct json_object *post_chat = json_object_new_object();
-            json_object_object_add(post_chat, "request", json_object_new_string("POST_CHAT"));
-            
-            struct json_object *body = json_object_new_array();
-            json_object_array_add(body, json_object_new_string(msg));
-            json_object_array_add(body, json_object_new_string(name));
-            json_object_array_add(body, json_object_new_string(deliver_date));
-            json_object_array_add(body, json_object_new_string("all"));
-            
-            json_object_object_add(post_chat, "body", body);
-            requestI = json_object_to_json_string_ext(post_chat, JSON_C_TO_STRING_SPACED | JSON_C_TO_STRING_PRETTY);
-            sendServer(requestI);
-        }
     }
+
+    //Request GET_CHAT
+    struct json_object *general_chat = json_object_new_object();
+    json_object_object_add(general_chat, "request", json_object_new_string("GET_CHAT"));
+    json_object_object_add(general_chat, "body", json_object_new_string("all"));
+    requestI = json_object_to_json_string_ext(general_chat, JSON_C_TO_STRING_SPACED | JSON_C_TO_STRING_PRETTY);
+    sendServer(requestI);
 }
 
 void GetPrivateChat(){

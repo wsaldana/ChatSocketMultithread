@@ -17,10 +17,10 @@ char *msgs[100][3] = {
 };
 
 // Users
-char *users[100][3] = {
-    {"user47", "198.0.0.10", "0"},
-    {"mcabs", "179.0.0.10", "1"},
-    {"chimp", "128.0.0.10", "2"},
+char *users[100][4] = {
+    {"1", "user47", "198.0.0.10", "0"},
+    {"2", "mcabs", "179.0.0.10", "1"},
+    {"3", "chimp", "128.0.0.10", "2"},
 };
 
 // Socket
@@ -56,6 +56,17 @@ void* serverthread(void* args){
             strcpy(req, json_object_get_string(requestMade));
             
             if (strcmp(req, "INIT_CONEX") == 0){
+                char fd[5];
+                sprintf(fd, "%d", mysockfd); 
+                for(int i=0; i<100; i++){
+                    if(users[i][0] == NULL){
+                        users[i][0] = fd;
+                        users[i][1] = json_object_get_string(json_object_array_get_idx(body, 0));
+                        users[i][2] = "189.10.0.1";
+                        users[i][3] = "0";
+                        break;
+                    }
+                }
                 printf("%s", json_object_get_string(requestMade));
             
             }else if(strcmp(req, "GET_CHAT") == 0){
@@ -84,6 +95,14 @@ void* serverthread(void* args){
                 }
                 
             }else if(strcmp(req, "POST_CHAT") == 0){
+                for(int i=0; i<100;  i++){
+                    if(msgs[i][0] == NULL){
+                        msgs[i][0] = json_object_get_string(json_object_array_get_idx(body, 0));
+                        msgs[i][1] = json_object_get_string(json_object_array_get_idx(body, 1));
+                        msgs[i][2] = json_object_get_string(json_object_array_get_idx(body, 2));
+                        break;
+                    }
+                }
                 if (body == "all"){
                     printf("all");
                 }else{
@@ -102,14 +121,14 @@ void* serverthread(void* args){
                     if(users[i][0] != NULL){
                         if (strcmp(b, "all") == 0){
                             struct json_object *usr = json_object_new_array();
-                            json_object_array_add(usr, json_object_new_string(users[i][0]));
-                            json_object_array_add(usr, json_object_new_string(users[i][2]));
+                            json_object_array_add(usr, json_object_new_string(users[i][1]));
+                            json_object_array_add(usr, json_object_new_string(users[i][3]));
 
                             json_object_array_add(body, usr);
                         }else{
                             if(strcmp(b, users[i][0]) == 0){
-                                json_object_array_add(body, json_object_new_string(users[i][1]));
                                 json_object_array_add(body, json_object_new_string(users[i][2]));
+                                json_object_array_add(body, json_object_new_string(users[i][3]));
                             }
                         }
                     }
@@ -126,6 +145,7 @@ void* serverthread(void* args){
                 }*/
                 
             }else if(strcmp(req, "PUT_STATUS") == 0){
+
                 if (body == "0"){
                     printf("0");
                 }else if(body == "1"){
