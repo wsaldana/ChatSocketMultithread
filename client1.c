@@ -32,6 +32,14 @@ void error(const char *msg){
     exit(1);
 }
 
+void print_ip(struct sockaddr_in addr){
+    printf("SERVER IP: %d.%d.%d.%d\n",
+        addr.sin_addr.s_addr & 0xff,
+        (addr.sin_addr.s_addr & 0xff00) >> 8,
+        (addr.sin_addr.s_addr & 0xff0000) >> 16,
+        (addr.sin_addr.s_addr & 0xff000000) >> 24
+    );
+}
 
 char sendServer(char *jsonMsg){
 	bzero(buffer, 1000);
@@ -240,6 +248,8 @@ int main(int argc, char *argv[]){
         sockfd = createNewSocketHostname(argv[2], portno);
     else
         error("Socket not found\n");
+    
+    print_ip(server_addr);
 
     //Obtener DATE
     time_t t = time(NULL);
